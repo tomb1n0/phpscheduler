@@ -1,0 +1,16 @@
+{
+    "name": "tomb1n0/phpscheduler",
+    "description": "A PHP Scheduling library",
+    "require": {
+        "mtdowling/cron-expression": "^1.2"
+    },
+    "authors": [
+        {
+            "name": "Tom Harper",
+            "email": "tom@stickman.co.uk"
+        }
+    ],
+    "autoload": {
+        "psr-4": {"PHPScheduler\\": "src/"}
+    }
+}
