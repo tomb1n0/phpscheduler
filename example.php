@@ -2,14 +2,9 @@
 
 require __DIR__ . '/vendor/autoload.php';
 
-$scheduler = new PHPScheduler\Scheduler('jobs');
+$scheduler = new PHPScheduler\Scheduler();
 
-function jobs(PHPScheduler\Scheduler $scheduler) {
-	$scheduler->everyFiveMinutes(function () {
-		echo "Every 5 Mins";
-	});
-	$scheduler->midnight(function () {
-		echo "Midnight!";
-	});
-}
+$scheduler->addJob(function() { echo "hello!"; })->everyFiveMinutes();
+$scheduler->addJob(function() { echo "hello again!"; })->minute();
 
+$scheduler->run();
