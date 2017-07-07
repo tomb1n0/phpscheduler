@@ -8,7 +8,7 @@ class Scheduler {
 	private $config;
 
 	public function __construct($config = []) {
-		$this->config = array_merge($config, ['lockpath' => __DIR__ . '/../lockfiles/']);
+		$this->config = array_merge(['lockpath' => __DIR__ . '/../lockfiles/'], $config);
 		$this->jobs = [];
 	}
 
