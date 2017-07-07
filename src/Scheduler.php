@@ -5,11 +5,13 @@ namespace PHPScheduler;
 class Scheduler {
 
 	private $jobs;
+	private $config;
 
-	public function __construct(Callable $function = null) {
-		if ($function != null) {
-			call_user_func_array($function, [$this]);
+	public function __construct($config = ['lockpath' => __DIR__ . '/../lockfiles/']) {
+		if (!isset($config['lockpath'])) {
+			throw new \Exception('No lockpath provided in scheduler config');
 		}
+		$this->config = $config;
 		$this->jobs = [];
 	}
 
@@ -18,48 +20,67 @@ class Scheduler {
 		return $this;
 	}
 
+	public function nonOverlapping($lock_name) {
+		return $this;
+	}
+
+	public function lockpath() {
+		return $this->config['lockpath'];
+	}
+
 	public function cron($cron_string) {
-		$this->jobs[] = new Job($cron_string, $this->temp_func);
+		$job = new Job($this, $cron_string, $this->temp_func);
+		$this->jobs[] = $job;
+		return $job;
 	}
 
 	public function run() {
 		foreach ($this->jobs as $job) {
 			if ($job->isDue()) {
-				$job->run();
+				// fork to a seperate PHP process.
+				$pid = pcntl_fork();
+				if ($pid === 0) {
+					posix_setsid();
+					// make our current process a session leader.
+					// this means that each job runs independently in a different process and then
+					// we're not waiting on the parent session to execute the next job.
+					$job->run();
+					exit();
+				}
 			}
 		}
 	}
 
 	public function minute() {
-		$this->Cron('* * * * *');
+		return $this->Cron('* * * * *');
 	}
 
 	public function everyFiveMinutes() {
-		$this->Cron('*/5 * * * *');
+		return $this->Cron('*/5 * * * *');
 	}
 
 	public function everyTenMinutes() {
-		$this->Cron('*/10 * * * *');
+		return $this->Cron('*/10 * * * *');
 	}
 
 	public function everyFifteenMinutes() {
-		$this->Cron('*/15 * * * *');
+		return $this->Cron('*/15 * * * *');
 	}
 
 	public function halfHourly() {
-		$this->Cron('*/30 * * * *');
+		return $this->Cron('*/30 * * * *');
 	}
 
 	public function hourly() {
-		$this->Cron('0 * * * *');
+		return $this->Cron('0 * * * *');
 	}
 
 	public function twiceDaily() {
-		$this->Cron('*/12 * * * *');
+		return $this->Cron('*/12 * * * *');
 	}
 
 	public function midnight() {
-		$this->Cron('0 0 * * *');
+		return $this->Cron('0 0 * * *');
 	}
 
 }
