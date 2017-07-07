@@ -7,11 +7,8 @@ class Scheduler {
 	private $jobs;
 	private $config;
 
-	public function __construct($config = ['lockpath' => __DIR__ . '/../lockfiles/']) {
-		if (!isset($config['lockpath'])) {
-			throw new \Exception('No lockpath provided in scheduler config');
-		}
-		$this->config = $config;
+	public function __construct($config = []) {
+		$this->config = array_merge($config, ['lockpath' => __DIR__ . '/../lockfiles/']);
 		$this->jobs = [];
 	}
 
