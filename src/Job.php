@@ -21,7 +21,7 @@ class Job {
 	}
 
 	public function lock() {
-		if (file_exists($this->scheduler->lockpath() . $this->lockfile)) {
+		if ($this->is_locked()) {
 			$pid = file_get_contents($this->scheduler->lockpath() . $this->lockfile);
 			throw new \Exception('A previous job with pid ' . $pid . ' has locked ' . $this->lockfile . ', perhaps it is still running?');
 		}
@@ -30,6 +30,16 @@ class Job {
 
 	public function unlock() {
 		return unlink($this->scheduler->lockpath() . $this->lockfile);
+	}
+
+	public function is_locked() {
+		if (file_exists($this->scheduler->lockpath() . $this->lockfile)) {
+			$pid = file_get_contents($this->scheduler->lockpath() . $this->lockfile);
+			if (file_exists("/proc/$pid")) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public function isDue() {
